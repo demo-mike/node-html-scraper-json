@@ -1,0 +1,24 @@
+{
+  "name": "html-fetcher",
+  "version": "1.0.0",
+  "description": "Fetches HTML from a URL and saves it to a file",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "html",
+    "fetch"
+  ],
+  "author": "Demo Mike",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch": "^2.6.6"
+  },
+  "devDependencies": {
+    "chalk": "^5.3.0",
+    "jsdom": "^22.1.0",
+    "node-html-parser": "^6.1.5"
+  }
+}
