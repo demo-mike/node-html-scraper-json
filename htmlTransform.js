@@ -4,24 +4,23 @@ export async function parseHTML(html) {
   const root = parse(html);
 
   // Target HTML elements
-  const type = "h1.category-page-title";
-  const productCard = ""; // Please fill this
+  const category = ".category-page-title";
+  const productCard = ".product-tile";
   const title = ".pdp-link a";
-  const description = ""; // Please fill this
+  const description = "";
   const regularPrice = ".sales .value";
   const salePrice = ".sales.promotion-price .value";
   const strikethroughPrice = ".strike-through.list .value";
   const sku = "[data-product-id]";
   const image = ".tile-image";
   const tagElements = {
-    type: ".refinement-series",
-    badge: ".values.content",
+    badge: ".product-badge",
   };
   const variantContainer = ".color-swatches__lists a";
 
   // Check the existence of the targeted HTML elements
   const selectors = [
-    type,
+    category,
     productCard,
     title,
     description,
@@ -43,6 +42,9 @@ export async function parseHTML(html) {
   const titleSet = new Set();
 
   const products = root.querySelectorAll(productCard).map((product) => {
+    // *** Category ***
+    const product_category = root.querySelector(category)?.innerText.trim().toLowerCase() ?? "";
+
     // *** Title ***
     const product_title = product.querySelector(title)?.innerText.trim();
     // If the product_title already exists, skip this product else add it to the titleSet Set list
@@ -67,6 +69,13 @@ export async function parseHTML(html) {
 
     // *** Tags ***
     const tagSet = new Set();
+    tagSet.add(
+      `type:${product_category
+        .trim()
+        .replace(/\s+/g, "-")
+        .replace(/[^\w-]+/g, "")
+        .toLowerCase()}`
+    );
     Object.entries(tagElements).forEach(([key, selector]) => {
       product.querySelectorAll(selector).forEach((element) => {
         const tagValue = element.innerText

@@ -28,6 +28,7 @@ async function parseHTMLFiles() {
 
 async function scrapeAndTransformData() {
   await fetchHTML(urls);
+  console.log(chalk.yellow(`✅ HTML Extraction Complete! Now running parsing operations`));
   countdown(5, parseHTMLFiles);
 }
 
