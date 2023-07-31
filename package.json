@@ -19,6 +19,7 @@
   "devDependencies": {
     "chalk": "^5.3.0",
     "jsdom": "^22.1.0",
-    "node-html-parser": "^6.1.5"
+    "node-html-parser": "^6.1.5",
+    "playwright": "^1.36.2"
   }
 }
