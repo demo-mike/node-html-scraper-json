@@ -2,6 +2,7 @@ import { writeFile, mkdir, rm } from "fs/promises";
 import { URL } from "url";
 import chalk from "chalk";
 import { chromium } from "playwright";
+import { minify } from "html-minifier";
 
 const delay = 200;
 let index = 1;
@@ -19,6 +20,11 @@ async function fetchAndSaveUrl(url, directory) {
     await page.goto(url);
     const body = await page.content();
     await browser.close();
+    body = minify(body, {
+      removeAttributeQuotes: true,
+      collapseWhitespace: true,
+      removeComments: true,
+    });
     const hostname = new URL(url).hostname;
     const domain = hostname.replace("www.", "");
     const filename = `${directory}/${directory}-${index}.html`;

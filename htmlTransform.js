@@ -1,80 +1,52 @@
 import { parse } from "node-html-parser";
 
-export async function parseHTML(html) {
+export async function parseHTML(html, target) {
   const root = parse(html);
-
-  // Target HTML elements
-  // Target the Category name of the collection page for example: Stollers, Cribs, Chairs
-  const category = `.f4-Jp`;
-  // The parent container of a single product card on the collections page
-  const productCard = `[unbxdattr="product"]`;
-  // Product Attributes
-  const title = `.x1Y39`;
-  const description = "";
-  const regularPrice = `.price__price`;
-  const salePrice = ".KFXFUhqz";
-  const strikethroughPrice = ".nQSW8PKD";
-  const skuContainer = `.Q6uWS label`;
-  const skuTargetAttribute = `for`;
-  const image = ".UCV5Q-63";
-  const vendor = "Express";
-  const tagElements = {
-    badge: ".bob",
-  };
-  // Variant Attributes
-  const variantContainer = `.Q6uWS`;
-  // Static Name for variant Option 1 name
-  const variantOptionName = "Color";
-  const variantOptionValue = `label.srOnly`;
-
-  // Check the existence of the targeted HTML elements
-  const selectors = [
-    category,
-    productCard,
-    title,
-    description,
-    regularPrice,
-    salePrice,
-    strikethroughPrice,
-    skuContainer,
-    image,
-    ...Object.values(tagElements),
-    variantContainer,
-  ];
-  selectors.forEach((selector) => {
-    if (selector && root.querySelector(selector) === null) {
-      throw new Error(`No elements match the selector "${selector}"`);
-    }
-  });
 
   // Initialize a Set to store the unique titles
   const titleSet = new Set();
 
-  const products = root.querySelectorAll(productCard).map((product) => {
+  const products = root.querySelectorAll(target.productCard).map((product) => {
     // *** Category ***
-    const product_category = root.querySelector(category)?.innerText.trim().toLowerCase() ?? "";
+    const product_category = root.querySelector(target.category)?.innerText.trim().toLowerCase() ?? "";
 
     // *** Title ***
-    const product_title = product.querySelector(title)?.innerText.trim().replace(/&reg;/g, "");
+    const product_title = product.querySelector(target.title)?.innerText.trim().replace(/&reg;/g, "");
     // If the product_title already exists, skip this product else add it to the titleSet Set list
     if (titleSet.has(product_title)) return;
     titleSet.add(product_title);
 
     // *** Description ***
-    // Fill this part
+    const product_description = product.querySelector(target.description)?.innerText;
 
     // *** Price ***
-    const salePriceElement = product.querySelector(salePrice);
-    const priceElement = product.querySelector(regularPrice);
-    const strikethroughPriceElement = product.querySelector(strikethroughPrice);
+    const salePriceElement = product.querySelector(target.salePrice);
+    const priceElement = product.querySelector(target.regularPrice);
+    const strikethroughPriceElement = product.querySelector(target.strikethroughPrice);
     const price = salePriceElement ? strikethroughPriceElement?.innerText.trim() : priceElement?.innerText.trim();
     const compareAtPrice = salePriceElement ? salePriceElement.innerText.trim() : "";
 
     // *** SKU ***
-    const product_sku = product.querySelector(skuContainer)?.getAttribute(skuTargetAttribute);
+    function extractSKU(selector, before, after) {
+      let element = product.querySelector(selector);
+      if (!element) return "";
+      // Get the value based on the type of the selector
+      let sku = selector.startsWith(".") ? element.textContent : element.getAttribute(selector.slice(1, -1));
+      // If there is a before string, split and return the second part
+      if (before && sku.includes(before)) {
+        sku = sku.split(before)[1];
+      }
+      // If there is an after string, split and return the first part
+      if (after && sku.includes(after)) {
+        sku = sku.split(after)[0];
+      }
+      return sku;
+    }
+
+    const productSku = extractSKU(target.skuTargetAttribute, target.skuBeforeString, target.skuAfterString);
 
     // *** Product Image ***
-    const imageUrl = product.querySelector(image)?.getAttribute("src")?.split("?")[0];
+    const imageUrl = product.querySelector(target.image)?.getAttribute("src")?.split("?")[0];
 
     // *** Tags ***
     const tagSet = new Set();
@@ -85,7 +57,7 @@ export async function parseHTML(html) {
         .replace(/[^\w-]+/g, "")
         .toLowerCase()}`
     );
-    Object.entries(tagElements).forEach(([key, selector]) => {
+    Object.entries(target.tagElements).forEach(([key, selector]) => {
       product.querySelectorAll(selector).forEach((element) => {
         const tagValue = element.innerText
           .trim()
@@ -97,7 +69,7 @@ export async function parseHTML(html) {
     });
 
     // *** Variants ***
-    const variants = product.querySelectorAll(variantContainer).map((variant) => {
+    const variants = product.querySelectorAll(target.variantContainer).map((variant) => {
       // *** Handle ***
       const handle = product_title
         .toLowerCase()
@@ -108,13 +80,13 @@ export async function parseHTML(html) {
       console.log({
         handle: handle,
         title: product_title,
-        description: description,
-        vendor: vendor,
+        description: product_description,
+        vendor: target.vendor,
         category: product_category,
         tags: Array.from(tagSet).join(", "),
-        optionName: variantOptionName,
-        optionValue: variant.querySelector(variantOptionValue)?.textContent,
-        product_sku: product_sku,
+        optionName: target.variantOptionName,
+        optionValue: variant.querySelector(target.variantOptionValue)?.textContent,
+        productSku,
       });
     });
   });
