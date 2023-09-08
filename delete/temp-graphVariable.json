@@ -1,0 +1,75 @@
+{
+  "product": {
+    "title": "Adult Perfect Weight Dry Cat Food",
+    "body_html": "Hills Science Diet Feline Adult Perfect Weight is formulated to help your cat achieve and maintain a healthy weight.",
+    "vendor": "Hills Science Diet",
+    "product_type": "Food",
+    "tags": "Cat, Food, Premium",
+    "variants": [
+      {
+        "option1": "1.3kg",
+        "price": "$125.99",
+        "sku": "",
+        "compare_at_price": "",
+        "inventory_quantity": 243,
+        "inventory_management": "shopify",
+        "inventory_policy": "deny"
+      },
+      {
+        "option1": "3.17kg",
+        "price": "$125.99",
+        "sku": "",
+        "compare_at_price": "",
+        "inventory_quantity": 522,
+        "inventory_management": "shopify",
+        "inventory_policy": "deny"
+      },
+      {
+        "option1": "6.80kg",
+        "price": "$125.99",
+        "sku": "",
+        "compare_at_price": "",
+        "inventory_quantity": 389,
+        "inventory_management": "shopify",
+        "inventory_policy": "deny"
+      }
+    ],
+    "options": [
+      {
+        "name": "Size"
+      }
+    ],
+    "images": [
+      {
+        "image": {
+          "src": "https://www.petcircle.com.au/petcircle-assets/images/products/p/hills-science-diet-adult-perfect-weight-dry-cat-food.png"
+        }
+      },
+      {
+        "image": {
+          "src": "https://www.petcircle.com.au/petcircle-assets/images/products/p/hills-science-diet-adult-perfect-weight-dry-cat-food___1.png"
+        }
+      },
+      {
+        "image": {
+          "src": "https://www.petcircle.com.au/petcircle-assets/images/products/p/hills-science-diet-adult-perfect-weight-dry-cat-food___10.png"
+        }
+      },
+      {
+        "image": {
+          "src": "https://www.petcircle.com.au/petcircle-assets/images/products/p/hills-science-diet-adult-perfect-weight-dry-cat-food___11.png"
+        }
+      },
+      {
+        "image": {
+          "src": "https://www.petcircle.com.au/petcircle-assets/images/products/p/hills-science-diet-adult-perfect-weight-dry-cat-food___12.png"
+        }
+      },
+      {
+        "image": {
+          "src": "https://www.petcircle.com.au/petcircle-assets/images/products/p/hills-science-diet-adult-perfect-weight-dry-cat-food___2.png"
+        }
+      }
+    ]
+  }
+}

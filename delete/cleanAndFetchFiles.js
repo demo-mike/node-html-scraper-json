@@ -2,7 +2,6 @@ import { writeFile, mkdir, rm } from "fs/promises";
 import { URL } from "url";
 import chalk from "chalk";
 import { chromium } from "playwright";
-import { minify } from "html-minifier";
 
 const delay = 200;
 let index = 1;
@@ -18,13 +17,9 @@ async function fetchAndSaveUrl(url, directory) {
     const browser = await chromium.launch();
     const page = await browser.newPage();
     await page.goto(url);
-    const body = await page.content();
+    let body = await page.content();
+    await page.waitForLoadState("networkidle"); // wait for all network connections to be idle
     await browser.close();
-    body = minify(body, {
-      removeAttributeQuotes: true,
-      collapseWhitespace: true,
-      removeComments: true,
-    });
     const hostname = new URL(url).hostname;
     const domain = hostname.replace("www.", "");
     const filename = `${directory}/${directory}-${index}.html`;

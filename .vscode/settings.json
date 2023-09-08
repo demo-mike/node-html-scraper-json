@@ -1,6 +1,6 @@
 {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "prettier.printWidth": 120,
+  "prettier.printWidth": 500,
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
@@ -11,7 +11,6 @@
   "javascript.suggest.autoImports": true,
   "javascript.validate.enable": false,
   "files.eol": "\n",
-  "files.autoSave": "onFocusChange",
   "editor.tabSize": 2,
   "editor.insertSpaces": true
 }
