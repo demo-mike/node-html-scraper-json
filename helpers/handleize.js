@@ -3,7 +3,7 @@
  * @param {string} title - The string to handleize
  * @returns {string} - The handleized string
  */
-export default function handleize(title) {
+export function handleize(title) {
   return title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")

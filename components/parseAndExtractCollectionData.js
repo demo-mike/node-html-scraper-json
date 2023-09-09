@@ -1,8 +1,9 @@
 import { readdir, readFile, writeFile } from "fs/promises";
 import { parse } from "node-html-parser";
 import chalk from "chalk";
-import handleize from "../helpers/handleize.js";
+import { handleize } from "../helpers/handleize.js";
 import { fetchAndReturnHtmlByUrl } from "../helpers/fetchAndReturnHtmlByUrl.js";
+import { getValueBySelector } from "../helpers/getValueBySelector.js";
 
 /**
  * Fetches HTML content of each URL, saves it to a file in the data-collections directory,
@@ -28,7 +29,7 @@ export async function parseCollections(collections, targetElements) {
     console.log(chalk.green(`💾 Saved HTML content to ${filePath}\n`));
 
     // Extract product data
-    await extractProductData(targetElements.collection_category, targetElements.collection_product_link, targetElements.collection_product_title, "./data-collections");
+    await extractProductData(targetElements.collection_category, targetElements.collection_breadcrumbs, targetElements.collection_product_link, targetElements.collection_product_title, "./data-collections");
   }
 }
 
@@ -39,7 +40,7 @@ export async function parseCollections(collections, targetElements) {
  * @param {string} productLinkHandle - The product title to handleize
  * @param {string} directory - The directory to parse files from
  */
-async function extractProductData(categorySelector, productLinksSelector, productLinkHandle, directory) {
+async function extractProductData(categorySelector, tagSelector, productLinksSelector, productLinkHandle, directory) {
   try {
     console.log(chalk.yellow(`🔍 Extracting product data from HTML files in ${directory}\n`));
 
@@ -61,6 +62,8 @@ async function extractProductData(categorySelector, productLinksSelector, produc
       // We need this because it's usually not on the product page
       const categoryElement = root.querySelector(categorySelector);
       const category = categoryElement ? categoryElement.text : "";
+      const tags = await getValueBySelector(html, tagSelector, "breadcrumbs");
+      console.log("🚀 ~ file: parseAndExtractCollectionData.js:66 ~ extractProductData ~ tags:", tags);
 
       // Select all elements that match the productLinksSelector
       // These will be all the urls to the product pages for each collection page item
@@ -78,7 +81,8 @@ async function extractProductData(categorySelector, productLinksSelector, produc
           productUrl,
           collectionFilePath,
           handle,
-          category,
+          product_type: category,
+          tags,
         });
       });
     }

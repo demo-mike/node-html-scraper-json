@@ -7,12 +7,13 @@ import chalk from "chalk";
  * @param {string} url - The URL to fetch HTML from
  * @returns {Promise<string>} - The HTML content of the page
  */
-export async function fetchAndReturnHtmlByUrl(url, waitTime = 5000) {
+export async function fetchAndReturnHtmlByUrl(url, waitTime = 5000, retries = 5) {
+  let browser;
   try {
     console.log(chalk.cyan(`🌐 Fetching HTML from ${url}\n`));
 
     // Launch a new browser instance
-    const browser = await chromium.launch();
+    browser = await chromium.launch();
 
     // Create a new browser context with specific settings
     const context = await browser.newContext({
@@ -49,6 +50,20 @@ export async function fetchAndReturnHtmlByUrl(url, waitTime = 5000) {
     // Return the HTML content
     return body;
   } catch (error) {
-    console.error(chalk.red(`❌ Error: ${error}\n`));
+    if (retries === 0) {
+      console.log(chalk.red(`🚫 Failed to fetch HTML from ${url} after 3 attempts. Skipping to next URL...`));
+      return null;
+    } else {
+      console.log(chalk.yellow(`Retrying... (${retries} retries left)`));
+      // Wait before retrying
+      console.log(chalk.yellow(`⏳ Waiting for 10 seconds before retrying...`));
+      await new Promise((resolve) => setTimeout(resolve, 10000));
+      return await fetchAndReturnHtmlByUrl(url, waitTime, retries - 1);
+    }
+  } finally {
+    // Ensure the browser is closed before the function exits
+    if (browser) {
+      await browser.close();
+    }
   }
 }
