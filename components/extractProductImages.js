@@ -6,7 +6,7 @@ import { parse } from "node-html-parser";
  * @param {string} html - The HTML string.
  * @returns {Array<Object>} An array of objects, each containing an image src and alt.
  */
-export async function extractProductImages(html, target, skipFirst = false, filter = "") {
+export async function extractProductImages(html, target, skipFirst = false, filter = "", color) {
   // Parse the HTML
   const root = parse(html);
 
@@ -25,6 +25,7 @@ export async function extractProductImages(html, target, skipFirst = false, filt
         image: {
           src: src,
           alt: img.getAttribute("alt"),
+          color: color,
         },
       });
     }

@@ -57,8 +57,16 @@ async function updateProductImages(productId, images, variants) {
     return;
   }
 
+  // Find the correct variant image src to associate with the image
+  // sort the image array by image.color and by ending filename eg. "teal.jpg", "teal-1.jpg"
+  // Look at the variants.option1 for the color value eg. "teal"
+  // Look at the images.color for the image color value eg. "teal"
+  // If they match, associate the image with the variant
+  // If the image.alt contains swatch then look for the next image match with the same color
+
   const variantImage = images[0];
   const variantIds = variants.map((variant) => variant.id);
+  console.log("🚀 ~ VARIANTS:", variants);
 
   for (const image of images) {
     try {

@@ -15,18 +15,18 @@ import { createVariantProps } from "./components/createVariantProps.js";
 import { extractProductImages, extractColorSwatchImagesAndAlt } from "./components/extractProductImages.js";
 import { extractProductData } from "./components/extractProductData.js";
 
-const getCollections = false;
-const getProducts = false;
+const getCollections = true;
+const getProducts = true;
 
 // The time to wait for the page to load before saving the HTML file
-// This could be 5000 or more depending on the site and up to 29000 max.
-const pageLoadWaitTimeMS = 200;
+// This could be 5000 (5 seconds) or more depending on the site and up to 29000 max.
+const pageLoadWaitTimeMS = 2000;
 
 // The base URL for the online store
 const baseUrl = "https://www.dunnesstores.com";
 
 // The array of collection URLs to fetch
-const collectionUrls = ["https://www.dunnesstores.com/c/women/clothing/dresses", "https://www.dunnesstores.com/c/men/clothing/shirts"];
+const collectionUrls = ["https://www.dunnesstores.com/c/men/clothing/shirts"];
 
 // The target page element selectors on collection pages
 const collectionPageElements = {
