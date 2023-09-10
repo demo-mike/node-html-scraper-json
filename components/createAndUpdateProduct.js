@@ -27,6 +27,7 @@ export async function createProduct(productData) {
           tags: productData.tags,
           variants: productData.variants,
           options: productData.options,
+          metafields: productData.metafields,
         },
       }),
     });
@@ -38,7 +39,7 @@ export async function createProduct(productData) {
       await updateProductImages(data.product.id, productData.images, data.product.variants);
       return data.product.id;
     } else {
-      console.error("❌ Error creating product:", data);
+      console.error(`❌ Error creating ${productData.handle}:`, data);
     }
   } catch (error) {
     console.error("❌ Error:", error);
@@ -56,7 +57,6 @@ async function updateProductImages(productId, images, variants) {
     return;
   }
 
-  // Use the first image from the array for the variants
   const variantImage = images[0];
   const variantIds = variants.map((variant) => variant.id);
 

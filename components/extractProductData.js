@@ -17,7 +17,7 @@ import { extractVariantLinks } from "./extractVariantLinks.js";
  * @param {string} baseUrl - The base URL for the online store
  * @param {number} pageLoadWaitTimeMS - The time to wait for the page to load before saving the HTML file
  */
-export async function extractProductData(productData, productPageElements, variantOptions, variantPageElements, baseUrl, pageLoadWaitTimeMS) {
+export async function extractProductData(productData, productPageElements, variantOptions, variantPageElements, metaFieldMap, baseUrl, pageLoadWaitTimeMS) {
   const productFiles = await readdir("data-products");
 
   for (const product of productFiles) {
@@ -34,23 +34,28 @@ export async function extractProductData(productData, productPageElements, varia
     const handle = handleize(title);
     const sku = await getValueBySelector(html, productPageElements.product_sku, "sku", productPageElements.product_sku_filter);
     const price = await getValueBySelector(html, productPageElements.product_price);
+
+    // Get color and image from the current HTML content
+    let color = await getValueBySelector(html, variantPageElements.variant_color);
+    let variantImage = await getValueBySelector(html, variantPageElements.variant_image, "src");
+
     const productImages = await extractProductImages(
       html,
       productPageElements.product_gallery_images,
       productPageElements.product_gallery_skip_first_img,
-      productPageElements.product_gallery_skip_filter
+      productPageElements.product_gallery_skip_filter,
+      color
     );
     images.push(...productImages);
-    const colorSwatchImages = await extractColorSwatchImagesAndAlt(html, productPageElements.product_color_swatch_images);
+    const colorSwatchImages = await extractColorSwatchImagesAndAlt(html, productPageElements.product_color_swatch_images, color);
     images.push(...colorSwatchImages);
 
     // Build variants array
     const variantLinks = extractVariantLinks(html, variantOptions.product_option1_selector);
     const variantSizes = await getValueBySelector(html, variantOptions.product_option2_selector, "selectSlice", " ");
 
-    // Get color and image from the current HTML content
-    let color = await getValueBySelector(html, variantPageElements.variant_color);
-    let variantImage = await getValueBySelector(html, variantPageElements.variant_image, "src");
+    // Build metafields array
+    const metafields = await buildMetaFields(metaFieldMap, html);
 
     // Current Product
     for (const size of variantSizes) {
@@ -71,7 +76,13 @@ export async function extractProductData(productData, productPageElements, varia
       const variantSku = await getValueBySelector(variantHtml, productPageElements.product_sku, "sku", productPageElements.product_sku_filter);
       color = await getValueBySelector(variantHtml, variantPageElements.variant_color);
       variantImage = await getValueBySelector(variantHtml, variantPageElements.variant_image, "src");
-      const variantProductImages = await extractProductImages(variantHtml, productPageElements.product_gallery_images);
+      const variantProductImages = await extractProductImages(
+        variantHtml,
+        productPageElements.product_gallery_images,
+        productPageElements.product_gallery_skip_first_img,
+        productPageElements.product_gallery_skip_filter,
+        color
+      );
       images.push(...variantProductImages);
 
       for (const size of variantSizes) {
@@ -80,11 +91,11 @@ export async function extractProductData(productData, productPageElements, varia
       }
     }
 
-    await updateExtractedData(handle, title, description, sku, price, productPageElements.product_vendor, variants, options, images);
+    await updateExtractedData(handle, title, description, sku, price, productPageElements.product_vendor, variants, options, images, metafields);
   }
 }
 
-async function updateExtractedData(handle, title, description, sku, price, vendor, variants, options, images) {
+async function updateExtractedData(handle, title, description, sku, price, vendor, variants, options, images, metafields) {
   // Read the file
   const data = await readFile("./data-extract/extracted-data.json", "utf-8");
 
@@ -104,6 +115,7 @@ async function updateExtractedData(handle, title, description, sku, price, vendo
     item.variants = variants;
     item.options = options;
     item.images = images;
+    item.metafields = metafields;
 
     // Write the updated JSON back to the file
     await writeFile("./data-extract/extracted-data.json", JSON.stringify(items, null, 2));
@@ -111,4 +123,23 @@ async function updateExtractedData(handle, title, description, sku, price, vendo
   } else {
     console.error(`No item found with handle: ${handle}`);
   }
+}
+
+async function buildMetaFields(metaFieldMap, html) {
+  const metafields = [];
+
+  for (const metaField of metaFieldMap) {
+    const value = await getValueBySelector(html, metaField.selector, metaField.selector_type);
+    metafields.push({
+      namespace: metaField.key
+        .split("_")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" "),
+      key: metaField.key,
+      value: value,
+      type: metaField.type,
+    });
+  }
+
+  return metafields;
 }

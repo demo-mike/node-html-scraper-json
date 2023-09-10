@@ -15,8 +15,8 @@ import { createVariantProps } from "./components/createVariantProps.js";
 import { extractProductImages, extractColorSwatchImagesAndAlt } from "./components/extractProductImages.js";
 import { extractProductData } from "./components/extractProductData.js";
 
-const getCollections = true;
-const getProducts = true;
+const getCollections = false;
+const getProducts = false;
 
 // The time to wait for the page to load before saving the HTML file
 // This could be 5000 or more depending on the site and up to 29000 max.
@@ -62,6 +62,23 @@ const variantPageElements = {
   variant_image: `.product-images__list-item .mz-figure img`,
 };
 
+// Structure each object in the array to include the key, selector, and value_type
+// This will be unique to each site
+const metaFieldMap = [
+  {
+    key: "size_and_fit",
+    selector: `[data-test="pdp-accordion-content-size_fit"]`,
+    selector_type: "text",
+    type: "string",
+  },
+  {
+    key: "details_and_care",
+    selector: `[data-test="pdp-accordion-content-details_care"]`,
+    selector_type: "allText",
+    type: "string",
+  },
+];
+
 /**
  * Main function to fetch and save HTML for each collection and product page
  */
@@ -82,7 +99,7 @@ async function main() {
     await fetchProducts(baseUrl, productData, pageLoadWaitTimeMS);
   }
 
-  await extractProductData(productData, productPageElements, variantOptions, variantPageElements, baseUrl, pageLoadWaitTimeMS);
+  await extractProductData(productData, productPageElements, variantOptions, variantPageElements, metaFieldMap, baseUrl, pageLoadWaitTimeMS);
 
   console.log(chalk.green("\n🥳 Done!\n"));
 }

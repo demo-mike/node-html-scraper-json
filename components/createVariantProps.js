@@ -8,14 +8,13 @@
  * @param {string} props.imageSrc - The image source URL of the variant.
  * @returns {Object} The created variant object.
  */
-export function createVariantProps({ color, size, sku, imageSrc, price }) {
+export function createVariantProps({ color, size, sku, price }) {
   const quantity = Math.floor(Math.random() * 1001);
   return {
     option1: color,
     option2: size,
     price: price,
     sku: sku,
-    imageSrc: imageSrc,
     compare_at_price: "",
     inventory_quantity: quantity,
     inventory_management: "shopify",
