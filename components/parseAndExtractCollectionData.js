@@ -63,7 +63,6 @@ async function extractProductData(categorySelector, tagSelector, productLinksSel
       const categoryElement = root.querySelector(categorySelector);
       const category = categoryElement ? categoryElement.text : "";
       const tags = await getValueBySelector(html, tagSelector, "breadcrumbs");
-      console.log("🚀 ~ file: parseAndExtractCollectionData.js:66 ~ extractProductData ~ tags:", tags);
 
       // Select all elements that match the productLinksSelector
       // These will be all the urls to the product pages for each collection page item

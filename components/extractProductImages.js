@@ -6,20 +6,30 @@ import { parse } from "node-html-parser";
  * @param {string} html - The HTML string.
  * @returns {Array<Object>} An array of objects, each containing an image src and alt.
  */
-export async function extractProductImages(html, target) {
+export async function extractProductImages(html, target, skipFirst = false, filter = "") {
   // Parse the HTML
   const root = parse(html);
 
   // Find all the img elements
   const imgElements = root.querySelectorAll(target);
 
+  // Use a Set to store unique image src values
+  const uniqueImages = new Set();
+
   // Map each img element to an object with src and alt properties
-  const images = imgElements.map((img) => ({
-    image: {
-      src: img.getAttribute("src"),
-      alt: img.getAttribute("alt"),
-    },
-  }));
+  const images = imgElements.reduce((acc, img, index) => {
+    const src = img.getAttribute("src");
+    if (!uniqueImages.has(src) && !(skipFirst && index === 0) && !src.includes(filter)) {
+      uniqueImages.add(src);
+      acc.push({
+        image: {
+          src: src,
+          alt: img.getAttribute("alt"),
+        },
+      });
+    }
+    return acc;
+  }, []);
 
   return images;
 }

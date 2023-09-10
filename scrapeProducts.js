@@ -8,12 +8,15 @@ import { handleize } from "./helpers/handleize.js";
 import { parseCollections } from "./components/parseAndExtractCollectionData.js";
 import { fetchProducts } from "./components/fetchProducts.js";
 import { extractVariantLinks } from "./components/extractVariantLinks.js";
+import { extractVariantLinksAndColors } from "./components/extractVariantLinksAndColors.js";
 import { processProductData } from "./components/processProductData.js";
+import { returnOptionsArray } from "./components/returnOptionsArray.js";
+import { createVariantProps } from "./components/createVariantProps.js";
+import { extractProductImages, extractColorSwatchImagesAndAlt } from "./components/extractProductImages.js";
+import { extractProductData } from "./components/extractProductData.js";
 
-const shopify_store = process.env.SHOPIFY_STORE;
-const x_shopify_access_token = process.env.X_SHOPIFY_ACCESS_TOKEN;
 const getCollections = true;
-const getProducts = false;
+const getProducts = true;
 
 // The time to wait for the page to load before saving the HTML file
 // This could be 5000 or more depending on the site and up to 29000 max.
@@ -33,12 +36,30 @@ const collectionPageElements = {
   collection_product_title: ".c-product-card__title-link",
 };
 
+const variantOptions = {
+  product_option1: "Colour",
+  product_option1_selector: ".c-product-colours__swatch",
+  product_option2: "Size",
+  product_option2_selector: "#field_sku",
+};
+
 // The target page element selectors on product pages
 const productPageElements = {
-  product_variant_parent_selector: `.c-product-colours__body`,
   product_title: `h1.c-product-overview__heading`,
   product_description: `[data-test="pdp-description"] > p:first-child`,
   product_sku: `[itemprop="sku"]`,
+  product_sku_filter: "Style #",
+  product_price: `.price__offer > span`,
+  product_vendor: `Dunnes Stores`,
+  product_gallery_images: `img.u-img-responsive`,
+  product_gallery_skip_first_img: true,
+  product_gallery_skip_filter: "/600/",
+  product_color_swatch_images: `.c-product-colours__swatch img`,
+};
+
+const variantPageElements = {
+  variant_color: `.c-product-colours__heading > span`,
+  variant_image: `.product-images__list-item .mz-figure img`,
 };
 
 /**
@@ -47,6 +68,7 @@ const productPageElements = {
 async function main() {
   // From the array of collection URLs, fetch and save the HTML for each collection
   if (getCollections) {
+    await clearDirectory("./data-extract");
     await clearDirectory("./data-collections");
     await parseCollections(collectionUrls, collectionPageElements);
   }
@@ -60,7 +82,7 @@ async function main() {
     await fetchProducts(baseUrl, productData, pageLoadWaitTimeMS);
   }
 
-  await extractProductData(productData);
+  await extractProductData(productData, productPageElements, variantOptions, variantPageElements, baseUrl, pageLoadWaitTimeMS);
 
   console.log(chalk.green("\n🥳 Done!\n"));
 }
@@ -68,44 +90,3 @@ async function main() {
 main().catch((error) => {
   console.error(chalk.red(`❌ Error: ${error}\n`));
 });
-
-// A function to for each product html page to extract the product data
-const extractProductData = async (productData) => {
-  const productFiles = await readdir("data-products");
-
-  for (const product of productFiles) {
-    const html = await readFile(`data-products/${product}`, "utf-8");
-    console.log(chalk.yellow(`🕵️‍♂️ Reading product file: ${product}\n`));
-
-    const variantLinks = extractVariantLinks(html, productPageElements.product_variant_parent_selector);
-    console.log("variantLinks:", variantLinks);
-    if (variantLinks > 0) {
-      for (const link of variantLinks) {
-        const variantHtml = await fetchAndReturnHtmlByUrl(link, pageLoadWaitTimeMS);
-        // What do I do with this data?
-      }
-    }
-
-    const title = await getValueBySelector(html, productPageElements.product_title);
-    const description = await getValueBySelector(html, productPageElements.product_description);
-    const handle = handleize(title);
-    const sku = await getValueBySelector(html, productPageElements.product_sku, "sku", "Style #");
-
-    // Variants Sizes
-    const variantSizes = await getValueBySelector(html, `#field_sku`, "selectSlice", " ");
-
-    // Meta Data (Custom for each store)
-    const metafields = [
-      {
-        key: "size_and_fit",
-        value: await getValueBySelector(html, `[data-test="pdp-accordion-content-size_fit"]`),
-      },
-      {
-        key: "details_and_care",
-        value: await getValueBySelector(html, '[data-test="pdp-accordion-content-details_care"]', "allText"),
-      },
-    ];
-
-    //console.log("🚀 :", { title, description, handle, sku, variantSizes, metafields });
-  }
-};
