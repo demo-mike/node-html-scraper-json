@@ -1,6 +1,5 @@
 import "dotenv/config";
 import fetch from "node-fetch";
-import fs from "fs/promises";
 
 const shopify_store = process.env.SHOPIFY_STORE;
 const x_shopify_access_token = process.env.X_SHOPIFY_ACCESS_TOKEN;
@@ -48,11 +47,11 @@ export async function createCollection(tag) {
       },
     };
 
-    const response = await fetch(SHOPIFY_API_URL, {
+    const response = await fetch(`${shopify_store}/admin/api/graphql.json`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Shopify-Access-Token": SHOPIFY_API_TOKEN,
+        "X-Shopify-Access-Token": x_shopify_access_token,
       },
       body: JSON.stringify({ query: createCollectionMutation, variables }),
     });

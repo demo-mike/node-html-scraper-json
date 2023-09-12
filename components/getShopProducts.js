@@ -1,6 +1,6 @@
 import "dotenv/config";
 import fetch from "node-fetch";
-import fs from "fs/promises";
+import { readdir, readFile, writeFile } from "fs/promises";
 
 const shopify_store = process.env.SHOPIFY_STORE;
 const x_shopify_access_token = process.env.X_SHOPIFY_ACCESS_TOKEN;
@@ -29,7 +29,7 @@ const productsQuery = (cursor) => {
 // Function to fetch products with pagination
 async function fetchProducts(cursor = null) {
   try {
-    const response = await fetch(`https://${shopify_store}.myshopify.com/admin/api//graphql.json`, {
+    const response = await fetch(`${shopify_store}/admin/api/graphql.json`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -49,11 +49,8 @@ async function fetchProducts(cursor = null) {
   }
 }
 
-// Function to delay the execution
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
 // Main function to fetch products and extract tags
-export async function getShopProducts() {
+export async function getShopProducts(keywords) {
   console.log("Starting to fetch products and extract tags...");
 
   let hasNextPage = true;
@@ -83,7 +80,7 @@ export async function getShopProducts() {
       console.log(`Fetched ${data.products.edges.length} products. Has next page: ${hasNextPage}`);
 
       // Wait for 1 second before making the next paginated request
-      await delay(1000);
+      await new Promise((resolve) => setTimeout(resolve, 500));
     } catch (error) {
       console.error("Error in main loop:", error);
       break;
@@ -94,6 +91,6 @@ export async function getShopProducts() {
   console.log("Extracted tags:", Array.from(extractedTags));
 
   // Save extracted tags to a JSON file
-  await fs.writeFile("./data-products/product-tags.json", JSON.stringify(Array.from(extractedTags), null, 2));
+  await writeFile("./data-shop/product-tags.json", JSON.stringify(Array.from(extractedTags), null, 2));
   console.log("Saved extracted tags to productTags.json");
 }
