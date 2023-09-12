@@ -52,36 +52,30 @@ export async function createProduct(productData) {
  * @param {Array} images - The new images for the product.
  */
 async function updateProductImages(productId, images, variants) {
+  console.log(`🖼️  Updating product ${productId} images...\n`);
   if (images.length === 0) {
     console.log("No images to update.");
     return;
   }
 
-  // Find the correct variant image src to associate with the image
-  // sort the image array by image.color and by ending filename eg. "teal.jpg", "teal-1.jpg"
-  // Look at the variants.option1 for the color value eg. "teal"
-  // Look at the images.color for the image color value eg. "teal"
-  // If they match, associate the image with the variant
-  // If the image.alt contains swatch then look for the next image match with the same color
-
-  const variantImage = images[0];
-  const variantIds = variants.map((variant) => variant.id);
-  console.log("🚀 ~ VARIANTS:", variants);
-
   for (const image of images) {
     try {
+      const matchingVariants = variants.filter((variant) => variant.option1 === image.image.color);
+      const variantIds = matchingVariants.map((variant) => variant.id);
+
       const body = JSON.stringify({
         image: {
           src: image.image.src,
-          // Only associate the first image with the variants
-          variant_ids: image === variantImage ? variantIds : [],
+          alt: image.image.alt,
+          variant_ids: variantIds,
         },
       });
-      console.log("🔄 Updating image:", {
-        productId: productId,
-        image: image.image.src,
-        variantImage: image === variantImage,
-      });
+      console.log("🔄 Updating image:", image.image.src);
+      // console.log("🔄 Updating image:", {
+      //   productId: productId,
+      //   image: image.image.src,
+      //   variantIds: variantIds,
+      // });
 
       const response = await fetch(`${shopify_store}/admin/api/2023-07/products/${productId}/images.json`, {
         method: "POST",
@@ -95,7 +89,7 @@ async function updateProductImages(productId, images, variants) {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("🖼️ Image updated successfully\n");
+        //console.log("🖼️  Image updated successfully\n");
       } else {
         console.error("❌ Error updating image:", data);
       }

@@ -15,6 +15,7 @@ import { createVariantProps } from "./components/createVariantProps.js";
 import { extractProductImages, extractColorSwatchImagesAndAlt } from "./components/extractProductImages.js";
 import { extractProductData } from "./components/extractProductData.js";
 
+const mode = "manual"; // 'auto' or 'manual'
 const getCollections = true;
 const getProducts = true;
 
@@ -26,7 +27,64 @@ const pageLoadWaitTimeMS = 2000;
 const baseUrl = "https://www.dunnesstores.com";
 
 // The array of collection URLs to fetch
-const collectionUrls = ["https://www.dunnesstores.com/c/men/clothing/shirts"];
+const collectionUrls = [
+  "https://www.dunnesstores.com/c/home/living-room/candles-and-holders",
+  "https://www.dunnesstores.com/c/home/living-room/mirrors",
+  "https://www.dunnesstores.com/c/home/living-room/living-room-storage",
+  "https://www.dunnesstores.com/c/home/living-room/lighting",
+  "https://www.dunnesstores.com/c/home/living-room/cushions-and-throws",
+  "https://www.dunnesstores.com/c/home/living-room/curtains-and-accessories",
+  "https://www.dunnesstores.com/c/home/living-room/picture-frames",
+  "https://www.dunnesstores.com/c/home/bedroom/rugs",
+  "https://www.dunnesstores.com/c/home/living-room/artificial-flowers-and-planters",
+  "https://www.dunnesstores.com/c/home/living-room/living-room-accessories",
+  "https://www.dunnesstores.com/c/home/living-room/wall-art",
+  "https://www.dunnesstores.com/c/home/bedroom/duvet-covers",
+  "https://www.dunnesstores.com/c/home/bedroom/duvets-pillows-and-protectors",
+  "https://www.dunnesstores.com/c/home/bedroom/bed-sheets",
+  "https://www.dunnesstores.com/c/home/bedroom/bedroom-storage",
+  "https://www.dunnesstores.com/c/home/bedroom/pillowcases",
+  "https://www.dunnesstores.com/c/home/bedroom/cushions-throws-and-accessories",
+  "https://www.dunnesstores.com/c/home/bedroom/kids-bedroom",
+  "https://www.dunnesstores.com/c/home/bedroom/rugs",
+  "https://www.dunnesstores.com/c/home/bedroom/hot-water-bottles",
+  "https://www.dunnesstores.com/c/home/kitchen-and-dining/cookware-and-bakeware",
+  "https://www.dunnesstores.com/c/home/kitchen-and-dining/plates-and-serving",
+  "https://www.dunnesstores.com/c/home/kitchen-and-dining/mugs",
+  "https://www.dunnesstores.com/c/home/kitchen-and-dining/cutlery",
+  "https://www.dunnesstores.com/c/home/kitchen-and-dining/glassware",
+  "https://www.dunnesstores.com/c/home/kitchen-and-dining/food-storage",
+  "https://www.dunnesstores.com/c/home/kitchen-and-dining/water-bottles",
+  "https://www.dunnesstores.com/c/home/kitchen-and-dining/electrical-appliances",
+  "https://www.dunnesstores.com/c/home/kitchen-and-dining/kitchen-accessories",
+  "https://www.dunnesstores.com/c/home/kitchen-and-dining/kitchen-linens",
+  "https://www.dunnesstores.com/c/home/kitchen-and-dining/utensils-and-gadgets",
+  "https://www.dunnesstores.com/c/home/kitchen-and-dining/laundry",
+  "https://www.dunnesstores.com/c/home/kitchen-and-dining/cleaning",
+  "https://www.dunnesstores.com/c/home/bathroom/towels",
+  "https://www.dunnesstores.com/c/home/bathroom/bathroom-accessories",
+  "https://www.dunnesstores.com/c/home/bathroom/bath-mats",
+  "https://www.dunnesstores.com/c/home/bathroom/bathroom-storage",
+  "https://www.dunnesstores.com/c/home/furniture/tables",
+  "https://www.dunnesstores.com/c/home/furniture/chairs",
+  "https://www.dunnesstores.com/c/home/furniture/storage",
+  "https://www.dunnesstores.com/c/home/furniture/beds-and-mattresses",
+  "https://www.dunnesstores.com/c/home/furniture/sofas",
+  "https://www.dunnesstores.com/c/home/furniture/office",
+  "https://www.dunnesstores.com/c/home/furniture/garden",
+  "https://www.dunnesstores.com/c/home/furniture/kids-furniture",
+  "https://www.dunnesstores.com/c/home/outdoor/outdoor-furniture",
+  "https://www.dunnesstores.com/c/home/outdoor/outdoor-accessories",
+  "https://www.dunnesstores.com/c/home/outdoor/outdoor-lighting",
+  "https://www.dunnesstores.com/c/home/outdoor/bbq-and-picnic",
+  "https://www.dunnesstores.com/c/home/outdoor/garden-tools",
+  "https://www.dunnesstores.com/c/home/outdoor/pots-and-planters",
+  "https://www.dunnesstores.com/c/home/outdoor/outdoor-cushions",
+  "https://www.dunnesstores.com/c/home/outdoor/outdoor-rugs",
+  "https://www.dunnesstores.com/c/home/outdoor/kids-outdoor",
+  "https://www.dunnesstores.com/c/home/outdoor/outdoor-dining",
+  "https://www.dunnesstores.com/c/home/outdoor/outdoor-heating",
+];
 
 // The target page element selectors on collection pages
 const collectionPageElements = {
@@ -83,15 +141,31 @@ const metaFieldMap = [
  * Main function to fetch and save HTML for each collection and product page
  */
 async function main() {
+  let fullUrls;
+
+  if (mode === "auto") {
+    // Read the navigation-links.json file
+    const navigationLinks = JSON.parse(await readFile("./data-navigation/navigation-links.json", "utf-8"));
+
+    // Filter the navigation links to only include those with a value
+    const validLinks = navigationLinks.filter((link) => link.value);
+
+    // Map the valid links to full URLs
+    fullUrls = validLinks.map((link) => `${baseUrl}${link.value}`);
+  } else if (mode === "manual") {
+    fullUrls = collectionUrls;
+  }
+
   // From the array of collection URLs, fetch and save the HTML for each collection
   if (getCollections) {
     await clearDirectory("./data-extract");
     await clearDirectory("./data-collections");
-    await parseCollections(collectionUrls, collectionPageElements);
+    await parseCollections(fullUrls, collectionPageElements);
   }
 
   // Read the extracted-data.json file
   const productData = JSON.parse(await readFile("./data-extract/extracted-data.json", "utf-8"));
+
   // For each product page, fetch and save the HTML
   if (getProducts) {
     await clearDirectory("./data-products");

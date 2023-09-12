@@ -1,11 +1,13 @@
 import { parse } from "node-html-parser";
 import { writeFile } from "fs/promises";
-import fetchAndReturnHtmlByUrl from "./helpers/fetchAndReturnHtmlByUrl.js";
+import { clearDirectory } from "./helpers/clearDirectory.js";
+import { fetchAndReturnHtmlByUrl } from "./helpers/fetchAndReturnHtmlByUrl.js";
 
 const url = `https://www.dunnesstores.com/`;
 const navUlSelector = `.c-nav a`;
 
 async function extractHrefsAndSaveToFile() {
+  await clearDirectory("./data-navigation/");
   const html = await fetchAndReturnHtmlByUrl(url);
   const root = parse(html);
 

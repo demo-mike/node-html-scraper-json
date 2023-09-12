@@ -10,9 +10,11 @@ const productData = JSON.parse(await readFile("./data-extract/extracted-data.jso
  */
 async function main() {
   for (const product in productData) {
-    await createProduct(productData[product]);
-    console.log(chalk.green(`\n⏳ Taking a breather before creating the next product...\n`));
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    if (productData[product].title) {
+      await createProduct(productData[product]);
+      console.log(chalk.green(`\n⏳ Taking a breather before creating the next product...\n`));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
   }
 
   console.log(chalk.green("\n🥳 Done!\n"));
