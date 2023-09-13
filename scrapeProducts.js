@@ -9,7 +9,6 @@ import { parseCollections } from "./components/parseAndExtractCollectionData.js"
 import { fetchProducts } from "./components/fetchProducts.js";
 import { extractVariantLinks } from "./components/extractVariantLinks.js";
 import { extractVariantLinksAndColors } from "./components/extractVariantLinksAndColors.js";
-import { processProductData } from "./components/processProductData.js";
 import { returnOptionsArray } from "./components/returnOptionsArray.js";
 import { createVariantProps } from "./components/createVariantProps.js";
 import { extractProductImages, extractColorSwatchImagesAndAlt } from "./components/extractProductImages.js";
