@@ -26,7 +26,12 @@ const productsQuery = (cursor) => {
   `;
 };
 
-// Function to fetch products with pagination
+/**
+ * Fetches products with pagination.
+ *
+ * @param {string} cursor - The cursor for pagination.
+ * @returns {Promise<Object>} The response from the Shopify API.
+ */
 async function fetchProducts(cursor = null) {
   try {
     const response = await fetch(`${shopify_store}/admin/api/graphql.json`, {
@@ -49,7 +54,11 @@ async function fetchProducts(cursor = null) {
   }
 }
 
-// Main function to fetch products and extract tags
+/**
+ * Fetches products and extracts tags.
+ *
+ * @param {Array<string>} keywords - The keywords to match.
+ */
 export async function getShopProducts(keywords) {
   console.log("Starting to fetch products and extract tags...");
 

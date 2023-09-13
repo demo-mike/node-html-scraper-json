@@ -4,6 +4,10 @@ import { parse } from "node-html-parser";
  * Extracts all the image src and alt attributes from the HTML.
  *
  * @param {string} html - The HTML string.
+ * @param {string} target - The target selector to find image elements.
+ * @param {boolean} skipFirst - Whether to skip the first image.
+ * @param {string} filter - The filter to exclude certain images.
+ * @param {string} color - The color of the product.
  * @returns {Array<Object>} An array of objects, each containing an image src and alt.
  */
 export async function extractProductImages(html, target, skipFirst = false, filter = "", color) {
@@ -39,6 +43,7 @@ export async function extractProductImages(html, target, skipFirst = false, filt
  * Extracts all the image src and alt attributes from the color swatch HTML.
  *
  * @param {string} html - The HTML string.
+ * @param {string} target - The target selector to find image elements.
  * @returns {Array<Object>} An array of objects, each containing an image src and alt.
  */
 export function extractColorSwatchImagesAndAlt(html, target) {

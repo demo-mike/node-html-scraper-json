@@ -10,6 +10,7 @@ import { getValueBySelector } from "../helpers/getValueBySelector.js";
  * and extracts product data from the saved HTML files.
  * @param {Array} collections - The array of collection URLs to fetch
  * @param {Object} targetElements - The target elements on product pages
+ * @returns {Promise<void>}
  */
 export async function parseCollections(collections, targetElements) {
   for (const url of collections) {
@@ -29,16 +30,24 @@ export async function parseCollections(collections, targetElements) {
     console.log(chalk.green(`💾 Saved HTML content to ${filePath}\n`));
 
     // Extract product data
-    await extractProductData(targetElements.collection_category, targetElements.collection_breadcrumbs, targetElements.collection_product_link, targetElements.collection_product_title, "./data-collections");
+    await extractProductData(
+      targetElements.collection_category,
+      targetElements.collection_breadcrumbs,
+      targetElements.collection_product_link,
+      targetElements.collection_product_title,
+      "./data-collections"
+    );
   }
 }
 
 /**
  * Extracts product data from HTML files in a specific directory and saves it to a JSON file
  * @param {string} categorySelector - The JS selector for the product category
+ * @param {string} tagSelector - The JS selector for the product tags
  * @param {string} productLinksSelector - The JS selector for the product links
  * @param {string} productLinkHandle - The product title to handleize
  * @param {string} directory - The directory to parse files from
+ * @returns {Promise<void>}
  */
 async function extractProductData(categorySelector, tagSelector, productLinksSelector, productLinkHandle, directory) {
   try {

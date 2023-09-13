@@ -6,11 +6,14 @@ const storeLocationID = process.env.STORE_LOCATION_ID;
 
 /**
  * Creates a product in the Shopify store.
- * @param {Object} product - The product to create.
+ * @param {Object} productData - The product to create.
  * @returns {Promise<string>} The ID of the created product.
  */
 export async function createProduct(productData) {
   try {
+    console.log(`👷 Creating product: ${productData.title}\n`);
+
+    // Send a POST request to the Shopify API to create a new product
     const response = await fetch(`${shopify_store}/admin/api/2023-07/products.json`, {
       method: "POST",
       headers: {
@@ -35,7 +38,7 @@ export async function createProduct(productData) {
     const data = await response.json();
 
     if (response.ok) {
-      console.log("👷 Product created successfully");
+      console.log("👷 Product created successfully\n");
       await updateProductImages(data.product.id, productData.images, data.product.variants);
       return data.product.id;
     } else {
@@ -50,11 +53,13 @@ export async function createProduct(productData) {
  * Updates the images of a product in the Shopify store.
  * @param {string} productId - The ID of the product to update.
  * @param {Array} images - The new images for the product.
+ * @param {Array} variants - The variants of the product.
+ * @returns {Promise<void>}
  */
 async function updateProductImages(productId, images, variants) {
   console.log(`🖼️  Updating product ${productId} images...\n`);
   if (images.length === 0) {
-    console.log("No images to update.");
+    console.log("No images to update.\n");
     return;
   }
 
@@ -71,11 +76,6 @@ async function updateProductImages(productId, images, variants) {
         },
       });
       console.log("🔄 Updating image:", image.image.src);
-      // console.log("🔄 Updating image:", {
-      //   productId: productId,
-      //   image: image.image.src,
-      //   variantIds: variantIds,
-      // });
 
       const response = await fetch(`${shopify_store}/admin/api/2023-07/products/${productId}/images.json`, {
         method: "POST",
@@ -89,7 +89,7 @@ async function updateProductImages(productId, images, variants) {
       const data = await response.json();
 
       if (response.ok) {
-        //console.log("🖼️  Image updated successfully\n");
+        console.log("🖼️  Image updated successfully\n");
       } else {
         console.error("❌ Error updating image:", data);
       }

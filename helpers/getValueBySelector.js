@@ -6,11 +6,12 @@ import chalk from "chalk";
  * @param {string} html - The HTML content to parse
  * @param {string} selector - The selector to match
  * @param {string} type - The type of value to return (defaults to "text")
- * @returns {string} - The value of the first element that matches the selector
+ * @param {string} filter - The filter to apply on the value
+ * @returns {Promise<string>} - The value of the first element that matches the selector
  */
 export async function getValueBySelector(html, selector, type = "text", filter) {
   try {
-    //console.log(chalk.yellow(`🔍 Fetching ${type} value for selector: ${selector}\n`));
+    console.log(chalk.yellow(`🔍 Fetching ${type} value for selector: ${selector}\n`));
 
     // Parse the HTML content
     const root = parse(html);
@@ -89,7 +90,7 @@ export async function getValueBySelector(html, selector, type = "text", filter) 
           value = element.text.trim();
       }
 
-      //console.log(chalk.green(`✅ Found ${type} value: ${value}\n`));
+      console.log(chalk.green(`✅ Found ${type} value: ${value}\n`));
       return value;
     } else {
       console.log(chalk.red(`❌ No element found for selector: ${selector}\n`));

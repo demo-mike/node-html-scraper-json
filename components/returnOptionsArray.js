@@ -1,8 +1,9 @@
 /**
  * Creates an array of options from individual parameters
+ *
  * @param {string} option1 - The first option
  * @param {string} option2 - The second option
- * @returns {Array<Object>} - An array of option objects
+ * @returns {Array<Object>} An array of option objects
  */
 export function returnOptionsArray(option1, option2) {
   const options = [];
